@@ -5,6 +5,13 @@
   Считаем, что всегда передается тег, допускающий вставку текста в качестве своего содержимого (P, DIV, I и пр.).
 */
 export function appendToBody(tag, content, count) {
+    let i = 0;
+    while (i < count) {
+        let tagToAdd = document.createElement(tag);
+        tagToAdd.innerHTML = content;
+        document.body.appendChild(tagToAdd);
+        i++;
+    }
 }
 
 /*
@@ -15,6 +22,30 @@ export function appendToBody(tag, content, count) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function generateTree(childrenCount, level) {
+    function recursiveGeneration(level, count) {
+        let root;
+        let n = count - 1;
+        if (level > 0) {
+            if (document.getElementsByClassName('item_' + n).length == 0) {
+                root = document.createElement('div');
+                document.body.appendChild(root);
+                root.setAttribute('class', 'item_' + count);
+                recursiveGeneration(level - 1, count + 1);
+            } else {
+                for (root of document.getElementsByClassName('item_' + n)) {
+                    for (let i = 0; i < childrenCount; i++) {
+                        let node = document.createElement('div');
+                        node.setAttribute('class', 'item_' + count);
+                        root.appendChild(node);
+                    }
+                }
+                recursiveGeneration(level - 1, count + 1);
+                return root;
+            }
+        }
+        return root;
+    }
+    return recursiveGeneration(level, 1);
 }
 
 /*
@@ -26,4 +57,22 @@ export function generateTree(childrenCount, level) {
   Сформированное дерево верните в качестве результата работы функции.
 */
 export function replaceNodes() {
+    let tree = generateTree(2, 3);
+    let parent = document.getElementsByClassName('item_1')[0];
+    for (let node of document.getElementsByClassName('item_2')) {
+        if (node.tagName != 'SECTION') {
+            let changeNode = document.createElement('SECTION');
+            changeNode.setAttribute('class', 'item_2');
+            for (let i = 0; i < 2; i++) {
+                let child = node.firstChild;
+                changeNode.appendChild(child);
+            }
+            parent.appendChild(changeNode);
+        }
+    }
+    for (let i = 0; i < 2; i++) {
+        let deleteNode = document.getElementsByClassName('item_2')[0];
+        parent.removeChild(deleteNode);
+    }
+    return tree;
 }
